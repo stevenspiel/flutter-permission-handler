@@ -14,14 +14,14 @@
     if (self) {
         _strategyInstances = _strategyInstances = [[NSMutableArray alloc] init];
     }
-    
+
     return self;
 }
 
 + (void)checkPermissionStatus:(enum PermissionGroup)permission result:(FlutterResult)result {
     id <PermissionStrategy> permissionStrategy = [PermissionManager createPermissionStrategy:permission];
     PermissionStatus status = [permissionStrategy checkPermissionStatus:permission];
-    
+
     result([Codec encodePermissionStatus:status]);
 }
 
@@ -34,22 +34,22 @@
 - (void)requestPermissions:(NSArray *)permissions completion:(PermissionRequestCompletion)completion {
     NSMutableSet *requestQueue = [[NSMutableSet alloc] initWithArray:permissions];
     NSMutableDictionary *permissionStatusResult = [[NSMutableDictionary alloc] init];
-    
+
     for (int i = 0; i < permissions.count; ++i) {
         PermissionGroup value;
         [permissions[i] getValue:&value];
         PermissionGroup permission = value;
-        
+
         id <PermissionStrategy> permissionStrategy = [PermissionManager createPermissionStrategy:permission];
         [_strategyInstances addObject:permissionStrategy];
-        
-        
+
+
         [permissionStrategy requestPermission:permission completionHandler:^(PermissionStatus permissionStatus) {
             permissionStatusResult[@(permission)] = @(permissionStatus);
             [requestQueue removeObject:@(permission)];
-            
+
             [self->_strategyInstances removeObject:permissionStrategy];
-            
+
             if (requestQueue.count == 0) {
                 completion(permissionStatusResult);
                 return;
@@ -75,12 +75,8 @@
 
 + (id)createPermissionStrategy:(PermissionGroup)permission {
     switch (permission) {
-        case PermissionGroupCalendar:
-            return [EventPermissionStrategy new];
         case PermissionGroupCamera:
             return [AudioVideoPermissionStrategy new];
-        case PermissionGroupContacts:
-            return [ContactPermissionStrategy new];
         case PermissionGroupLocation:
         case PermissionGroupLocationAlways:
         case PermissionGroupLocationWhenInUse:
@@ -89,24 +85,8 @@
             #else
             return [LocationPermissionStrategy new];
             #endif
-        case PermissionGroupMediaLibrary:
-            return [MediaLibraryPermissionStrategy new];
-        case PermissionGroupMicrophone:
-            return [AudioVideoPermissionStrategy new];
-        case PermissionGroupPhone:
-            return [PhonePermissionStrategy new];
-        case PermissionGroupPhotos:
-            return [PhotoPermissionStrategy new];
-        case PermissionGroupReminders:
-            return [EventPermissionStrategy new];
-        case PermissionGroupSensors:
-            return [SensorPermissionStrategy new];
-        case PermissionGroupSpeech:
-            return [SpeechPermissionStrategy new];
         case PermissionGroupNotification:
             return [NotificationPermissionStrategy new];
-        case PermissionGroupStorage:
-            return [StoragePermissionStrategy new];
         default:
             return [UnknownPermissionStrategy new];
     }

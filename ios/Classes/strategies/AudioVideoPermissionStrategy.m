@@ -16,12 +16,6 @@
         #else
         return PermissionStatusUnknown;
         #endif
-    } else if (permission == PermissionGroupMicrophone) {
-        #if PERMISSION_MICROPHONE
-        return [AudioVideoPermissionStrategy permissionStatus:AVMediaTypeAudio];
-        #else
-        return PermissionStatusUnknown;
-        #endif
     }
     return PermissionStatusUnknown;
 }
@@ -43,13 +37,6 @@
     if (permission == PermissionGroupCamera) {
         #if PERMISSION_CAMERA
         mediaType = AVMediaTypeVideo;
-        #else
-        completionHandler(PermissionStatusUnknown);
-        return;
-        #endif
-    } else if (permission == PermissionGroupMicrophone) {
-        #if PERMISSION_MICROPHONE
-        mediaType = AVMediaTypeAudio;
         #else
         completionHandler(PermissionStatusUnknown);
         return;
